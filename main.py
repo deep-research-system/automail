@@ -1,6 +1,7 @@
 from extract_llm import extract_llm
 from profile import profile_check, create_profile, save_profile
 from remain_form import ask_missing_fields
+from smtp import send_smtp
 
 def main():
     user_request = input("요청 내용> ").strip()
@@ -18,6 +19,9 @@ def main():
     print("\n[현재 state]")
     for k, v in state.items():
         print(f"- {k}: {v}")
+
+    print("\n[SMTP 테스트 전송]")
+    send_smtp(state)   
 
 if __name__ == "__main__":
     main()
