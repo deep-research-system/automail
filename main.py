@@ -1,13 +1,22 @@
 from extract_llm import extract_llm
+from profile import profile_check, create_profile, save_profile
+from remain_form import ask_missing_fields
 
 def main():
-    user_input = input("요청 내용> ").strip()
-    first_data = extract_llm(user_input)
-    
-    print("\n")
-    print(first_data)
-    print("\n[LLM 추출 결과]")
-    for k, v in first_data.items():
+    user_request = input("요청 내용> ").strip()
+    state = extract_llm(user_request)
+
+    if not profile_check():
+        print("\n[프로필 없음] 발신자 정보 입력")
+        profile = create_profile(state)
+        save_profile(profile)
+        state.update(profile)
+        print("\n프로필 생성 완료.\n")
+
+    ask_missing_fields(state)
+
+    print("\n[현재 state]")
+    for k, v in state.items():
         print(f"- {k}: {v}")
 
 if __name__ == "__main__":
