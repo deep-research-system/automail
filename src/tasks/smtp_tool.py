@@ -1,7 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 
-def send_smtp(state: dict):
+def send_smtp_tool(state: dict) -> dict:
     EMAIL = state["from_mail"]
     PASSWORD = state["app_password"]
     TO_MAIL = state["to_mail"]
@@ -18,4 +18,4 @@ def send_smtp(state: dict):
         server.login(EMAIL, PASSWORD)
         server.send_message(msg)
 
-    print(f"메일 전송 성공 → {TO_MAIL}")
+    return {"ok": True, "to_mail": TO_MAIL}

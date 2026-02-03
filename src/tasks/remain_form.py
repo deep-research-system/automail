@@ -1,11 +1,8 @@
 from typing import Dict, Any, List, Tuple
-from extract_llm import Extractdata
+from app.llm.extract_llm import Extractdata
 
 def get_fields_and_labels() -> Tuple[List[str], Dict[str, str]]:
-    """
-    Extractdata 스키마에서 (필드 목록, 라벨) 자동 추출
-    - 라벨은 Field(description)을 사용
-    """
+    """Extractdata 스키마에서 (필드 목록, 라벨) 자동 추출"""
     fields: List[str] = []
     labels: Dict[str, str] = {}
 
@@ -15,23 +12,17 @@ def get_fields_and_labels() -> Tuple[List[str], Dict[str, str]]:
 
     return fields, labels
 
-
 def get_missing_fields(state: Dict[str, Any], fields: List[str]) -> List[str]:
-    """
-    state에 아직 값이 없거나 빈 문자열인 필드만 추려냄
-    """
-    missing = []
+    """state에 아직 값이 없거나 빈 문자열인 필드만 추려냄"""
+    missing: List[str] = []
     for key in fields:
         v = state.get(key)
         if v is None or (isinstance(v, str) and v.strip() == ""):
             missing.append(key)
     return missing
 
-
 def ask_missing_fields(state: Dict[str, Any]) -> None:
-    """
-    Extractdata 스키마 기준으로 state에 없는 값만 input()으로 채움
-    """
+    """Extractdata 스키마 기준으로 state에 없는 값만 input()으로 채움"""
     fields, labels = get_fields_and_labels()
     missing = get_missing_fields(state, fields)
 
