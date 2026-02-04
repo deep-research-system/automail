@@ -4,5 +4,6 @@
     "to_mail": "dmlcks789@naver.com",
     "send_name": "한승재",
     "from_mail": "wjddmlcks789@daum.net",
-    "app_password": "gypmoyubxbgnyeeg"
+    "app_password": "gypmoyubxbgnyeeg",
+    "files": "테스트 파일.hwpx"
 }

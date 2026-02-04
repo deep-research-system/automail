@@ -8,6 +8,7 @@ class SupervisorState(TypedDict):
     send_name: Annotated[str, "발신자명"]
     from_mail: Annotated[str, "발신자 메일"]
     app_password: Annotated[str, "앱 비밀번호"]
+    files: Annotated[str, "첨부파일"]
 
 MailType = Literal["견적서", "보고서", "일반"]
 class AutomailState(TypedDict):
