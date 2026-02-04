@@ -1,3 +1,15 @@
-# 기존 prompt.py 내용을 여기로 옮겨두면 됩니다.
-# 지금은 import가 깨지지 않도록 기본 변수만 둡니다.
-input_extract_prompt = """당신은 이메일 자동화 비서입니다. 사용자의 요청에서 필요한 정보를 추출하세요."""
+# src/prompt.py
+
+mail_prompt = """
+너는 이메일 초안을 생성하는 함수다.
+아래의 정보를 가지고 사용자 요구에 맞는 이메일 초안을 작성하라.
+
+[요청사항]
+{supervisor_messages}
+
+[수신자 이름]
+{receive_name}
+
+[발신자 이름]
+{send_name}
+"""

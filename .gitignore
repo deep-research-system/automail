@@ -1,21 +1,45 @@
+# =========================
+# Python
+# =========================
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 
+# =========================
+# Virtual Environment
+# =========================
 .venv/
 venv/
+ENV/
 env/
 
+# =========================
+# Environment variables
+# =========================
 .env
-.env.*
-config.json
 
+# =========================
+# LangGraph (local dev artifacts)
+# =========================
+.langgraph_api/
+
+# =========================
+# OS / Editor
+# =========================
 .DS_Store
 Thumbs.db
-
 .vscode/
 .idea/
 
+# =========================
+# Logs / temp
+# =========================
 *.log
 *.tmp
+
+# =========================
+# Optional: requirements lock
+# =========================
+# uv.lock
+# poetry.lock
