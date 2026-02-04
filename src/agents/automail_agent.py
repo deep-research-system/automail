@@ -1,5 +1,5 @@
 from src.state import GraphState
-from src.tasks.mail_prototype_llm import mail_prototype_llm
+from src.tasks.mail_writer_llm import mail_prototype_llm
 from src.tasks.smtp_tool import send_smtp_tool
 
 

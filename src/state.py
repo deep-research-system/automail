@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Literal, Dict, Any, Annotated
+from typing import TypedDict, Optional, Literal, Dict, Any, Annotated, NotRequired
 
 class SupervisorState(TypedDict):
     # SUPERVISOR로 부터 받을 내용
@@ -11,13 +11,17 @@ class SupervisorState(TypedDict):
     files: Annotated[str, "첨부파일"]
 
 MailType = Literal["견적서", "보고서", "일반"]
-class AutomailState(TypedDict):
+class AutomailState(TypedDict, total=False):
     # LLM으로부터 얻을 메일 타입
     mail_type: MailType
 
     # 초안 결과
     title: Annotated[str, "제목"]
     context: Annotated[str, "본문"]
+
+    # 피드백
+    feedback: NotRequired[Annotated[str, "사용자 피드백 내용"]]
+    confirm: NotRequired[Annotated[bool, "컨펌 여부"]]
 
 class GraphState(SupervisorState, AutomailState):
     pass
