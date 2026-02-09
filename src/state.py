@@ -15,14 +15,9 @@ MailType = Literal["견적서", "보고서", "일반"]
 class AutomailState(TypedDict):
     # LLM 출력 형식 고정용
     mail_type: Annotated[MailType, "메일 타입"]
-    title: Annotated[str, "제목"]
-    context: Annotated[str, "본문"]
-    confirm: Annotated[bool, "컨펌 여부"]
 
-
+    
 class GraphState(SupervisorState, total=False):
     mail_type: Annotated[MailType, "메일 타입"]
     title: Annotated[str, "제목"]
-    context: Annotated[str, "본문"]
-    confirm: Annotated[bool, "컨펌 여부"]
-    feedback: Annotated[str, "사용자 피드백 내용"]
+    context: Annotated[str,"본문"]

@@ -8,7 +8,7 @@ from email.mime.application import MIMEApplication
 from email.utils import formatdate, make_msgid
 
 
-def send_smtp_tool(state: dict) -> dict:
+def send_smtp(state: dict) -> dict:
     from_mail = state["from_mail"]
     app_password = state["app_password"]
     to_mail = state["to_mail"]
