@@ -5,7 +5,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
+입력값.json
 # =========================
 # Virtual Environment
 # =========================
