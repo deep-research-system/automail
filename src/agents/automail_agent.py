@@ -1,15 +1,21 @@
+from langgraph.types import interrupt
 from src.state import GraphState
-from src.tasks.mail_writer_llm import mail_prototype_llm
-from src.tasks.smtp_tool import send_smtp_tool
+from src.tasks.mail_writer_llm import mail_writer_llm
+from src.tasks.smtp import send_smtp_tool
 
-
-def mail_prototype_node(state: GraphState) -> GraphState:
-    result = mail_prototype_llm(state)
+def mail_write(state: GraphState) -> GraphState:
+    result = mail_writer_llm(state)
     state.update(result)
     return state
 
+def feedback(state: GraphState) -> GraphState:
+    feedback_answer = interrupt("feedback_needed")
+    state["feedback"] = feedback_answer
+    return state
 
-def send_smtp_node(state: GraphState) -> GraphState:
-    # state에 들어있는 subject/body를 그대로 사용해 메일 전송
+def smtp_or_feedback(state: GraphState) -> str:
+    return "smtp" if state.get("confirm") is True else "feedback"
+
+def smtp(state: GraphState) -> GraphState:
     send_smtp_tool(state)
     return state

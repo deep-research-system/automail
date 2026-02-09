@@ -6,7 +6,7 @@ from src.state import GraphState, AutomailState
 from src.settings import settings
 
 
-def mail_prototype_llm(state: GraphState) -> AutomailState:
+def mail_writer_llm(state: GraphState) -> AutomailState:
     llm = init_chat_model(
         api_key=settings.openai_api,
         model=settings.llm_model,
@@ -18,8 +18,8 @@ def mail_prototype_llm(state: GraphState) -> AutomailState:
         receive_name=state["receive_name"],
         send_name=state["send_name"],
         files=state["files"],
-        feedback=state.get("feedback"),
-        title=state.get("title"),
-        context=state.get("context"))
+        feedback=state.get("feedback", ""),
+        title=state.get("title", ""),
+        context=state.get("context", ""))
 
     return llm.invoke([SystemMessage(content=system_prompt)])

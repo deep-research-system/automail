@@ -10,18 +10,19 @@ class SupervisorState(TypedDict):
     app_password: Annotated[str, "앱 비밀번호"]
     files: Annotated[str, "첨부파일"]
 
-MailType = Literal["견적서", "보고서", "일반"]
-class AutomailState(TypedDict, total=False):
-    # LLM으로부터 얻을 메일 타입
-    mail_type: MailType
 
-    # 초안 결과
+MailType = Literal["견적서", "보고서", "일반"]
+class AutomailState(TypedDict):
+    # LLM 출력 형식 고정용
+    mail_type: Annotated[MailType, "메일 타입"]
     title: Annotated[str, "제목"]
     context: Annotated[str, "본문"]
+    confirm: Annotated[bool, "컨펌 여부"]
 
-    # 피드백
-    feedback: NotRequired[Annotated[str, "사용자 피드백 내용"]]
-    confirm: NotRequired[Annotated[bool, "컨펌 여부"]]
 
-class GraphState(SupervisorState, AutomailState):
-    pass
+class GraphState(SupervisorState, total=False):
+    mail_type: Annotated[MailType, "메일 타입"]
+    title: Annotated[str, "제목"]
+    context: Annotated[str, "본문"]
+    confirm: Annotated[bool, "컨펌 여부"]
+    feedback: Annotated[str, "사용자 피드백 내용"]
