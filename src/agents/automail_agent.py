@@ -1,32 +1,60 @@
 from pathlib import Path
 import yaml
+from langgraph.types import interrupt
 
 from src.state import GraphState
-from src.tasks.mail_writer_llm import mail_type_llm
+from src.tasks.mail_writer_llm import mail_type_llm, feedback_llm
 from src.tasks.smtp import send_smtp
 
-template_path = Path("templates.yaml")  # 루트 기준
+template_path = Path("templates.yaml")
 
 
 def mail_type(state: GraphState) -> GraphState:
+    """
+    LLM이 supervisor messages를 보고 메일 타입 선택 
+    """
     result = mail_type_llm(state)
     state.update(result)
     return state
 
 
-def mail_write(state: GraphState) -> GraphState:
+def prototype_from_templates(state: GraphState) -> GraphState:
     """
-    LLM으로 부터 얻은 메일 타입에 맞는 초안 템플릿 선택해 변수값 채움
+    LLM으로부터 얻은 메일 타입에 맞는 초안 템플릿 선택해 변수값 채움
     """
     templates = yaml.safe_load(template_path.read_text(encoding="utf-8"))
-    mail_shape = templates[state["mail_type"]]
+    mail_prototype = templates[state["mail_type"]]
 
-    state["title"] = mail_shape["title"]
-    state["context"] = mail_shape["context"].format(
+    state["title"] = mail_prototype["title"]
+    state["context"] = mail_prototype["context"].format(
         receive_name=state["receive_name"],
         send_name=state["send_name"])
-    
     return state
+
+def feedback(state: GraphState) -> GraphState:
+    """
+    사용자에게 피드백 받을 인터럽트 단계
+    """
+    feedback_answer = interrupt("feedback_needed")
+    state["feedback"] = feedback_answer
+    return state
+
+def write_mail_from_feedback(state: GraphState) -> GraphState:
+    """
+    LLM이 사용자로부터 받은 피드백을 가지고 컨펌 판단 및 이메일 유지/수정
+    """
+    result = feedback_llm(state)
+    state.update(result)
+    return state
+
+def smtp_or_feedback(state: GraphState) -> str:
+    """
+    confirm=True면 전송, 아니면 다시 피드백 받기(루프)
+    """
+    if state["confirm"] is True:
+        return "smtp"
+    else:
+        return "feedback"
 
 
 def smtp(state: GraphState) -> GraphState:

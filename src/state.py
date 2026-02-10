@@ -12,12 +12,21 @@ class SupervisorState(TypedDict):
 
 
 MailType = Literal["견적서", "보고서", "일반"]
-class AutomailState(TypedDict):
-    # LLM 출력 형식 고정용
+class TypeState(TypedDict):
+    # 메일 타입 LLM 출력 고정용
     mail_type: Annotated[MailType, "메일 타입"]
+
+class FeedbackState(TypedDict):
+    # 피드백 LLM 출력 고정용
+    title: Annotated[str, "제목"]
+    context: Annotated[str,"본문"]
+    confirm: Annotated[bool, "전송 확정 여부"]
 
     
 class GraphState(SupervisorState, total=False):
+    # 추가될 state값들
     mail_type: Annotated[MailType, "메일 타입"]
     title: Annotated[str, "제목"]
     context: Annotated[str,"본문"]
+    feedback: Annotated[str, "피드백"]
+    confirm: Annotated[bool, "전송 확정 여부"]
