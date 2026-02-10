@@ -22,7 +22,8 @@ class FeedbackState(TypedDict):
     context: Annotated[str,"본문"]
     confirm: Annotated[bool, "전송 확정 여부"]
 
-    
+
+# graph에서 사용할 state
 class GraphState(SupervisorState, total=False):
     # 추가될 state값들
     mail_type: Annotated[MailType, "메일 타입"]

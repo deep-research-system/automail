@@ -9,43 +9,38 @@ from email.utils import formatdate, make_msgid
 
 
 def send_smtp(state: dict) -> dict:
+    # state에서 필요한 값만 한 번 꺼내서 통일
     from_mail = state["from_mail"]
-    app_password = state["app_password"]
     to_mail = state["to_mail"]
+    app_password = state["app_password"]
+    title = state["title"]
+    context = state["context"]
+    files = state["files"]
 
-    title = state["title"]       # LLM 초안 제목
-    context = state["context"]   # LLM 초안 본문
-    files = state["files"]       # 첨부파일명
+    # 제목 및 본문
+    smtp = MIMEMultipart()
+    smtp["Subject"] = title  # 제목
+    smtp["From"] = from_mail # 발신자
+    smtp["To"] = to_mail     # 수신자
+    smtp["Date"] = formatdate(localtime=True)    # 보내는 날짜
+    smtp["Message-ID"] = make_msgid()
+    smtp.attach(MIMEText(context, _charset="utf-8")) # 본문 내용
 
-    # 1) 메일 컨테이너 (본문 + 첨부)
-    msg = MIMEMultipart()
-    msg["Subject"] = title
-    msg["From"] = from_mail
-    msg["To"] = to_mail
-    msg["Date"] = formatdate(localtime=True)
-    msg["Message-ID"] = make_msgid()
+    # 첨부파일
+    if files:
+        file_path = Path(files)
+        with file_path.open("rb") as f:
+            part = MIMEApplication(f.read(), _subtype="octet-stream")   # _subtype="octet-stream" : 일반 바이너리 파일로 취급
+            part.add_header("Content-Disposition", "attachment", filename=file_path.name)
+            smtp.attach(part)
 
-    # 2) 본문
-    msg.attach(MIMEText(context, _charset="utf-8"))
-
-    # 3) 첨부파일 (무조건 1개, 문자열 경로)
-    file_path = Path(files)
-    with open(file_path, "rb") as f:
-        part = MIMEApplication(f.read(), _subtype="octet-stream")
-        part.add_header(
-            "Content-Disposition",
-            "attachment",
-            filename=file_path.name,
-        )
-        msg.attach(part)
-
-    # 4) SMTP 전송
+    # SMTP 전송
     with smtplib.SMTP_SSL("smtp.daum.net", 465) as server:
         server.login(from_mail, app_password)
-        server.send_message(msg)
+        server.send_message(smtp)
 
-    # 5) 보낸편지함 저장 (IMAP APPEND)
-    raw_bytes = msg.as_bytes()
+    # 보낸편지함 기록
+    raw_bytes = smtp.as_bytes()
     with imaplib.IMAP4_SSL("imap.daum.net", 993) as imap:
         imap.login(from_mail, app_password)
         imap.append(
@@ -54,11 +49,3 @@ def send_smtp(state: dict) -> dict:
             imaplib.Time2Internaldate(time.time()),
             raw_bytes,
         )
-        imap.logout()
-
-    return {
-        "ok": True,
-        "to_mail": to_mail,
-        "title": title,
-        "file": file_path.name,
-    }
