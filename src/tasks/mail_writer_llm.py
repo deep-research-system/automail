@@ -5,8 +5,8 @@ from src.prompt import mail_prompt, general_prototype_prompt, feedback_prompt
 from src.state import SupervisorState, TypeState, FeedbackState, PrototypeState, GraphState
 from src.settings import settings
 
-# 메일 타입 판단 LLM, 피드백을 통해 메일 수정 관련 LLM. 총 2개의 LLM 사용
 
+# 메일 타입 판단, 일반 타입(템플릿 없는 경우), 피드백을 통해 메일 수정 관련 LLM. 총 3개의 LLM 사용
 def mail_type_llm(state: SupervisorState) -> TypeState:
     """
     1. 메일 타입 분류

@@ -23,7 +23,7 @@ def prototype_or_template(state: GraphState) -> GraphState:
     견적서/보고서 => 템플릿
     그 이외 => 일반 (LLM 초안)
     """
-    # 견적서/보고서 타입
+    # 견적서/보고서 타입(템플릿이 있는 경우)
     if state["mail_type"] in ("견적서", "보고서"):
         templates = yaml.safe_load(template_path.read_text(encoding="utf-8"))
         template_prototype = templates[state["mail_type"]]
@@ -34,11 +34,11 @@ def prototype_or_template(state: GraphState) -> GraphState:
         state["confirm"] = False
         return state
     
-    # 일반 타입(LLM)
+    # 일반 타입(LLM, 템플릿이 없는 경우)
     prototype = general_prototype_llm(state)
     state["title"] = prototype["title"]
     state["context"] = prototype["context"]
-    state["confirm"] = False  # False일 것
+    state["confirm"] = False
     return state
 
 
