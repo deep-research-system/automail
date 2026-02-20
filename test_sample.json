@@ -4,5 +4,5 @@
     "send_name": "한승재",
     "from_mail": "",
     "app_password": "",
-    "files": "테스트 파일.hwpx"
+    "files": ["테스트 파일1.hwpx", "테스트 파일2.hwpx"]
 }
