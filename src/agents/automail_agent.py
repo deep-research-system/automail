@@ -6,12 +6,14 @@ from src.state import GraphState
 from src.tasks.mail_writer_llm import mail_type_llm, general_prototype_llm, feedback_llm
 from src.tasks.smtp import send_smtp
 
+# 템플릿 불러오기
 template_path = Path("templates.yaml")
 
 
 def mail_type(state: GraphState) -> GraphState:
     """
-    LLM이 supervisor messages를 보고 메일 타입 선택 
+    LLM이 supervisor messages를 보고 메일 타입 판단
+    [견적서, 보고서, 일반] 중 하나 선택
     """
     result = mail_type_llm(state)
     state.update(result)
@@ -20,8 +22,9 @@ def mail_type(state: GraphState) -> GraphState:
 
 def prototype_or_template(state: GraphState) -> GraphState:
     """
-    견적서/보고서 => 템플릿
-    그 이외 => 일반 (LLM 초안)
+    견적서/보고서 => 템플릿으로 초안 작성
+    일반 => LLM을 통한 초안 작성
+    초안 단계이므로 feedback 단계에서 사용될 confirm은 False로 초기값 설정
     """
     # 견적서/보고서 타입(템플릿이 있는 경우)
     if state["mail_type"] in ("견적서", "보고서"):

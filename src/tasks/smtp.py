@@ -22,17 +22,22 @@ def send_smtp(state: dict) -> dict:
     smtp["Subject"] = title  # 제목
     smtp["From"] = from_mail # 발신자
     smtp["To"] = to_mail     # 수신자
-    smtp["Date"] = formatdate(localtime=True)    # 보내는 날짜
+    smtp["Date"] = formatdate(localtime=True) # 보내는 날짜
     smtp["Message-ID"] = make_msgid()
     smtp.attach(MIMEText(context, _charset="utf-8")) # 본문 내용
 
     # 첨부파일
     if files:
-        file_path = Path(files)
-        with file_path.open("rb") as f:
-            part = MIMEApplication(f.read(), _subtype="octet-stream")   # _subtype="octet-stream" : 일반 바이너리 파일로 취급
-            part.add_header("Content-Disposition", "attachment", filename=file_path.name)
-            smtp.attach(part)
+        for file in files:
+            file_path = Path(file)
+            with file_path.open("rb") as f:
+                part = MIMEApplication(f.read(), _subtype="octet-stream")
+                part.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=file_path.name
+                )
+                smtp.attach(part)
 
     # SMTP 전송
     with smtplib.SMTP_SSL("smtp.daum.net", 465) as server:

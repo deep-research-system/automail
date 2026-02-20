@@ -27,7 +27,7 @@ def general_prototype_llm(state: GraphState) -> PrototypeState:
     """
     2. 일반 타입인 경우 LLM이 초안 작성
     - 템플릿이 아닌 LLM이 직접 사용자 입력(supervisor_messages)을 보고 LLM 초안 작성
-    title, context, confirm(=False로 무조건 출력) 출력
+    - title, context 출력
     """
     llm = init_chat_model(
         api_key=settings.openai_api,
@@ -48,7 +48,7 @@ def feedback_llm(state: GraphState) -> FeedbackState:
     """
     3. 사용자 피드백
     - 윗 단계를 통해 초안이 나오면 LLM이 사용자 피드백 내용을 보고 컨펌 판단 및 메일 수정
-    - confirm=True 인 경우 메일 전송
+    - confirm=True이 되는 경우 메일 전송 단계로 넘어갈 예정
     - title, context, confirm 출력
     """
     llm = init_chat_model(
