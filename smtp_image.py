@@ -62,12 +62,17 @@ def send_smtp(state: dict) -> dict:
     smtp.attach(related)
 
     # 일반 첨부파일
-    for file in files:
-        file_path = Path(file)
-        with file_path.open("rb") as f:
-            part = MIMEApplication(f.read(), _subtype="octet-stream")
-        part.add_header("Content-Disposition", "attachment", filename=file_path.name)
-        smtp.attach(part)
+    if files:
+        for file in files:
+            file_path = Path(file)
+            with file_path.open("rb") as f:
+                part = MIMEApplication(f.read(), _subtype="octet-stream")
+                part.add_header(
+                    "Content-Disposition",
+                    "attachment",
+                    filename=file_path.name
+                )
+                smtp.attach(part)
 
     # SMTP 전송
     with smtplib.SMTP_SSL("smtp.daum.net", 465) as server:
@@ -78,6 +83,9 @@ def send_smtp(state: dict) -> dict:
     raw_bytes = smtp.as_bytes()
     with imaplib.IMAP4_SSL("imap.daum.net", 993) as imap:
         imap.login(from_mail, app_password)
-        imap.append("Sent", None, imaplib.Time2Internaldate(time.time()), raw_bytes)
-
-    return state
+        imap.append(
+            "Sent",
+            None,
+            imaplib.Time2Internaldate(time.time()),
+            raw_bytes,
+        )

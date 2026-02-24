@@ -1,6 +1,0 @@
-{
-  "graphs": {
-    "automail": "src.graph:graph"
-  },
-  "dependencies": ["."]
-}
