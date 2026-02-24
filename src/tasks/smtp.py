@@ -1,15 +1,16 @@
-import smtplib
-import imaplib
-import time
+import smtplib, imaplib, time, html
 from pathlib import Path
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
 from email.utils import formatdate, make_msgid
 
 
 def send_smtp(state: dict) -> dict:
-    # state에서 필요한 값만 한 번 꺼내서 통일
+    """
+    서명 양식의 그림을 첨부하는 방법
+    """
     from_mail = state["from_mail"]
     to_mail = state["to_mail"]
     app_password = state["app_password"]
@@ -17,27 +18,56 @@ def send_smtp(state: dict) -> dict:
     context = state["context"]
     files = state["files"]
 
-    # 제목 및 본문
-    smtp = MIMEMultipart()
-    smtp["Subject"] = title  # 제목
-    smtp["From"] = from_mail # 발신자
-    smtp["To"] = to_mail     # 수신자
-    smtp["Date"] = formatdate(localtime=True) # 보내는 날짜
-    smtp["Message-ID"] = make_msgid()
-    smtp.attach(MIMEText(context, _charset="utf-8")) # 본문 내용
+    sign_image_path = Path("sign_test.png")
 
-    # 첨부파일
-    if files:
-        for file in files:
-            file_path = Path(file)
-            with file_path.open("rb") as f:
-                part = MIMEApplication(f.read(), _subtype="octet-stream")
-                part.add_header(
-                    "Content-Disposition",
-                    "attachment",
-                    filename=file_path.name
-                )
-                smtp.attach(part)
+    smtp = MIMEMultipart()
+    smtp["Subject"] = title
+    smtp["From"] = from_mail
+    smtp["To"] = to_mail
+    smtp["Date"] = formatdate(localtime=True)
+    smtp["Message-ID"] = make_msgid()
+
+    related = MIMEMultipart("related")
+    context_to_html = html.escape(context).replace("\n", "<br>")
+
+    cid = make_msgid(domain="sig")
+    cid_value = cid[1:-1]
+
+    sign_html = f"""
+    <br><br>
+    <div style="border-top:1px solid #e5e5e5; margin-top:16px; padding-top:12px;">
+      <img src="cid:{cid_value}" alt="signature"
+           style="max-width:720px; height:auto; display:block;">
+    </div>
+    """
+
+    body_html = f"""
+    <html>
+      <body>
+        <div style="font-family:Arial, sans-serif; font-size:14px; color:#111;">
+          {context_to_html}
+        </div>
+        {sign_html}
+      </body>
+    </html>
+    """
+
+    related.attach(MIMEText(body_html, "html", _charset="utf-8"))
+
+    with sign_image_path.open("rb") as f:
+        img = MIMEImage(f.read())
+    img.add_header("Content-ID", cid)
+    img.add_header("Content-Disposition", "inline", filename=sign_image_path.name)
+    related.attach(img)
+    smtp.attach(related)
+
+    # 일반 첨부파일
+    for file in files:
+        file_path = Path(file)
+        with file_path.open("rb") as f:
+            part = MIMEApplication(f.read(), _subtype="octet-stream")
+        part.add_header("Content-Disposition", "attachment", filename=file_path.name)
+        smtp.attach(part)
 
     # SMTP 전송
     with smtplib.SMTP_SSL("smtp.daum.net", 465) as server:
@@ -48,9 +78,6 @@ def send_smtp(state: dict) -> dict:
     raw_bytes = smtp.as_bytes()
     with imaplib.IMAP4_SSL("imap.daum.net", 993) as imap:
         imap.login(from_mail, app_password)
-        imap.append(
-            "Sent",
-            None,
-            imaplib.Time2Internaldate(time.time()),
-            raw_bytes,
-        )
+        imap.append("Sent", None, imaplib.Time2Internaldate(time.time()), raw_bytes)
+
+    return state
